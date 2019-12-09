@@ -16,9 +16,12 @@ int **readSpecialMatrix() {
         cin >> nownumadj;
         adjlist[i] = new int[nownumadj + 1];
         adjlist[i][0] = nownumadj;
-        cout << "please,adjacent vertices separated by spaces" << endl;
-        for (int j = 0; j < nownumadj; j++) {
-            cin >> adjlist[i][j + 1];
+
+        if (nownumadj > 0) {
+            cout << "please,adjacent vertices separated by spaces" << endl;
+            for (int j = 0; j < nownumadj; j++) {
+                cin >> adjlist[i][j + 1];
+            }
         }
     }
     return adjlist;
@@ -38,6 +41,7 @@ void printSpecialMatrix(int **adjlist) {
 
 /*--------------GRAPH-------------*/
 MyGraph::MyGraph(int nv) {
+    numvertex = nv;
     list = new Node *[nv];
 }
 
@@ -49,8 +53,31 @@ MyGraph::~MyGraph() {
 }
 
 int MyGraph::checkSpecialMatrix(int **inputadjlist) {
-    int answer = 0;
+    if (inputadjlist[0][0] != numvertex) { return 1; }
 
+    for (int i = 1; i < numvertex + 1; i++) {
+        int numadj = inputadjlist[i][0] + 1;
 
-    return answer;
+        if (numadj - 1 >= numvertex || numadj - 1 == 0) { return 2; }
+
+        for (int j = 1; j < numadj; j++) {
+
+            if (inputadjlist[i][j] == i) { return 3; }
+            if (inputadjlist[i][j] > numvertex || inputadjlist[i][j] <= 0) { return 4; }
+
+            for (int k = j + 1; k < numadj; k++) {
+                if (inputadjlist[i][j] == inputadjlist[i][k]) { return 5; }
+            }
+
+        }
+    }
+
+    return 0;
+}
+
+bool MyGraph::readSpecialMatrix(int **inputadjlist) {
+    bool flag = false;
+    if (checkSpecialMatrix(inputadjlist) > 0) { flag = !flag; }
+
+    return flag;
 }

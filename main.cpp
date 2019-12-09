@@ -2,8 +2,7 @@
 #include "logicgraph.h"
 
 int main() {
-/*    MyGraph myGraph(abs(numvertex));*/
-    printSpecialMatrix(readSpecialMatrix());
-
+    MyGraph myGraph(3);
+    cout << myGraph.readSpecialMatrix(readSpecialMatrix());
     return 0;
 }
