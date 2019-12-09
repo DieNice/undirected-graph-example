@@ -21,6 +21,8 @@ private:
 
     int checkSpecialMatrix(int **inputadjlist);
 
+    bool isSimpleUndirectedGraph(int **inputadjlist);
+
 public:
     MyGraph(int nv);
 

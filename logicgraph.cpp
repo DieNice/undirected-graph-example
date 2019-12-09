@@ -1,7 +1,7 @@
 #include "logicgraph.h"
 
 int **readSpecialMatrix() {
-    cout << "Please, input num of vertext:";
+    cout << "Please, input num of vertex:";
     int numvertex;
     cin >> numvertex;
     int **adjlist;
@@ -46,10 +46,8 @@ MyGraph::MyGraph(int nv) {
 }
 
 MyGraph::~MyGraph() {
-    for (int i = 0; i < numvertex; i++) {
-        delete[] list[0];
-    }
     delete[] list;
+
 }
 
 int MyGraph::checkSpecialMatrix(int **inputadjlist) {
@@ -75,9 +73,56 @@ int MyGraph::checkSpecialMatrix(int **inputadjlist) {
     return 0;
 }
 
+bool MyGraph::isSimpleUndirectedGraph(int **inputadjlist) {
+    bool **adjacencymatrix;
+    bool flag = true;
+
+    int nv = numvertex;
+    adjacencymatrix = new bool *[nv];
+    for (int i = 0; i < nv; i++) {
+        adjacencymatrix[i] = new bool[nv];
+    }
+
+    for (int i = 0; i < nv; i++) {
+        for (int j = 0; j < nv; j++) {
+            adjacencymatrix[i][j] = false;
+        }
+    }
+
+    for (int i = 1; i < inputadjlist[0][0] + 1; i++) {
+        for (int j = 1; j < inputadjlist[i][0] + 1; j++) {
+            int k = inputadjlist[i][j] - 1;
+            adjacencymatrix[i - 1][k] = true;
+        }
+    }
+
+
+/*    for (int i = 0; i < nv; i++) {
+        for (int j = 0; j < nv; j++) {
+            cout << adjacencymatrix[i][j] << " ";
+        }
+        cout << endl;
+    }*/
+
+    for (int i = 0; i < nv; i++) {
+        for (int j = 0; j < nv; j++) {
+            if (adjacencymatrix[i][j] != adjacencymatrix[j][i]) { return !flag; }
+        }
+    }
+
+    for (int i = 0; i < nv; i++) {
+        delete[] adjacencymatrix[i];
+    }
+
+    return flag;
+
+}
+
 bool MyGraph::readSpecialMatrix(int **inputadjlist) {
     bool flag = false;
-    if (checkSpecialMatrix(inputadjlist) > 0) { flag = !flag; }
+    if (checkSpecialMatrix(inputadjlist) > 0) { return !flag; }
+    if (!isSimpleUndirectedGraph(inputadjlist)) { return !flag; }
 
     return flag;
 }
+
