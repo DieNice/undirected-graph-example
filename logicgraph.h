@@ -8,20 +8,36 @@ using namespace std;
 int **readSpecialMatrix(); //return specisal matrix adjacent
 void printSpecialMatrix(int **adjlist);//print to screen matrix adjacent
 
-struct Node {
+struct AdjVertex {
     int field;
-    struct list *next;
-    struct list *prev;
+    AdjVertex *next;
+    AdjVertex *prev;
+
+    AdjVertex(int v);
+
+};
+
+struct Vertex {
+    AdjVertex *myadj;
+    int field;
+    Vertex *next;
+    Vertex *prev;
+
+    Vertex(int v);
+
 };
 
 class MyGraph {
 private:
     int numvertex;
-    Node **list;
+    Vertex *list;
 
+    /*    my features*/
     int checkSpecialMatrix(int **inputadjlist);
 
     bool isSimpleUndirectedGraph(int **inputadjlist);
+
+    /*    my features*/
 
 public:
     MyGraph(int nv);
@@ -30,7 +46,9 @@ public:
 
     bool readSpecialMatrix(int **inputadjlist);
 
-    bool addAdjvertex(int invertex, int addvertext);
+    int addvertex(int v);
+
+    int addarc(int b, int e);
 
     void printGraph();
 

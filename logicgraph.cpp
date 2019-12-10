@@ -42,12 +42,11 @@ void printSpecialMatrix(int **adjlist) {
 /*--------------GRAPH-------------*/
 MyGraph::MyGraph(int nv) {
     numvertex = nv;
-    list = new Node *[nv];
+    list = nullptr;
 }
 
 MyGraph::~MyGraph() {
-    delete[] list;
-
+    delete list;
 }
 
 int MyGraph::checkSpecialMatrix(int **inputadjlist) {
@@ -123,6 +122,62 @@ bool MyGraph::readSpecialMatrix(int **inputadjlist) {
     if (checkSpecialMatrix(inputadjlist) > 0) { return !flag; }
     if (!isSimpleUndirectedGraph(inputadjlist)) { return !flag; }
 
+
+    for (int i = 1; i < inputadjlist[0][0] + 1; i++) {
+        if (list == nullptr) {
+            list = new Vertex(i);
+        } else {
+            Vertex *newvertex = new Vertex(i);
+            list->prev = newvertex;
+            newvertex->next = list;
+            list = newvertex;
+
+        }
+        for (int j = 1; j < inputadjlist[i][0] + 1; j++) {
+            AdjVertex *newadjv = new AdjVertex(inputadjlist[i][j]);
+            if (list->myadj == nullptr) {
+                list->myadj = newadjv;
+            } else {
+                list->myadj->prev = newadjv;
+                newadjv->next = list->myadj;
+                list->myadj = newadjv;
+            }
+        }
+
+    }
+
     return flag;
 }
 
+Vertex::Vertex(int v) {
+    field = v;
+    myadj = nullptr;
+    next = nullptr;
+    prev = nullptr;
+
+}
+
+AdjVertex::AdjVertex(int v) {
+    field = v;
+    next = nullptr;
+    prev = nullptr;
+}
+
+void MyGraph::printGraph() {
+    if (list == nullptr) {
+        cout << "Graph is empty" << endl;
+    } else {
+        Vertex *nowv = list;
+        AdjVertex *nowadj;
+        while (nowv != nullptr) {
+            cout << "\n" << nowv->field << "<-";
+            nowadj = nowv->myadj;
+            while (nowadj != nullptr) {
+                cout << nowadj->field << ",";
+                nowadj = nowadj->next;
+            }
+            nowv = nowv->next;
+        }
+
+    }
+}
