@@ -1,5 +1,23 @@
 #include "logicgraph.h"
 
+/*list of lists*/
+Vertex::Vertex(unsigned int v) {
+    field = v;
+    myadj = nullptr;
+    next = nullptr;
+    prev = nullptr;
+
+}
+
+AdjVertex::AdjVertex(unsigned int v) {
+    field = v;
+    next = nullptr;
+    prev = nullptr;
+}
+
+/*list of lists*/
+
+/*    my features*/
 int **readSpecialMatrix() {
     cout << "Please, input num of vertex:";
     int numvertex;
@@ -38,32 +56,22 @@ void printSpecialMatrix(int **adjlist) {
     }
 }
 
-
-/*--------------GRAPH-------------*/
-MyGraph::MyGraph(int nv) {
-    numvertex = nv;
-    list = nullptr;
-}
-
-MyGraph::~MyGraph() {
-    delete list;
-}
-
 int MyGraph::checkSpecialMatrix(int **inputadjlist) {
-    if (inputadjlist[0][0] != numvertex) { return 1; }
 
-    for (int i = 1; i < numvertex + 1; i++) {
+    unsigned int nv = inputadjlist[0][0];
+
+    for (int i = 1; i < nv + 1; i++) {
         int numadj = inputadjlist[i][0] + 1;
 
-        if (numadj - 1 >= numvertex || numadj - 1 == 0) { return 2; }
+        if (numadj - 1 >= nv || numadj - 1 == 0) { return 1; }
 
         for (int j = 1; j < numadj; j++) {
 
-            if (inputadjlist[i][j] == i) { return 3; }
-            if (inputadjlist[i][j] > numvertex || inputadjlist[i][j] <= 0) { return 4; }
+            if (inputadjlist[i][j] == i) { return 2; }
+            if (inputadjlist[i][j] > nv || inputadjlist[i][j] <= 0) { return 3; }
 
             for (int k = j + 1; k < numadj; k++) {
-                if (inputadjlist[i][j] == inputadjlist[i][k]) { return 5; }
+                if (inputadjlist[i][j] == inputadjlist[i][k]) { return 4; }
             }
 
         }
@@ -76,7 +84,7 @@ bool MyGraph::isSimpleUndirectedGraph(int **inputadjlist) {
     bool **adjacencymatrix;
     bool flag = true;
 
-    int nv = numvertex;
+    int nv = inputadjlist[0][0];
     adjacencymatrix = new bool *[nv];
     for (int i = 0; i < nv; i++) {
         adjacencymatrix[i] = new bool[nv];
@@ -122,6 +130,7 @@ bool MyGraph::readSpecialMatrix(int **inputadjlist) {
     if (checkSpecialMatrix(inputadjlist) > 0) { return !flag; }
     if (!isSimpleUndirectedGraph(inputadjlist)) { return !flag; }
 
+    numvertex = inputadjlist[0][0];
 
     for (int i = 1; i < inputadjlist[0][0] + 1; i++) {
         if (list == nullptr) {
@@ -149,19 +158,18 @@ bool MyGraph::readSpecialMatrix(int **inputadjlist) {
     return flag;
 }
 
-Vertex::Vertex(int v) {
-    field = v;
-    myadj = nullptr;
-    next = nullptr;
-    prev = nullptr;
+/*    my features*/
 
+/*--------------GRAPH-------------*/
+MyGraph::MyGraph() {
+    numvertex = 0;
+    list = nullptr;
 }
 
-AdjVertex::AdjVertex(int v) {
-    field = v;
-    next = nullptr;
-    prev = nullptr;
+MyGraph::~MyGraph() {
+    delete list;
 }
+
 
 void MyGraph::printGraph() {
     if (list == nullptr) {
@@ -181,3 +189,98 @@ void MyGraph::printGraph() {
 
     }
 }
+
+int MyGraph::addvertex(unsigned int v) {
+    if (v == 0) { return 1; } //vertex is zero
+
+    if (list == nullptr) {
+        Vertex *newvertex = new Vertex(v);
+        list = newvertex;
+        numvertex++;
+    } else {
+        if (vertexexistence(v)) { return 2; }
+        Vertex *newvertex = new Vertex(v);
+        list->prev = newvertex;
+        newvertex->next = list;
+        list = newvertex;
+        numvertex++;
+    }
+
+
+}
+
+bool MyGraph::vertexexistence(unsigned int v) {
+    Vertex *nowv = list;
+    bool flag = false;
+    while (flag != true && nowv != nullptr) {
+        if (nowv->field == v) { flag = !flag; }
+        nowv = nowv->next;
+    }
+    return flag;
+}
+
+unsigned int MyGraph::getnumvertex() {
+    return numvertex;
+}
+
+int MyGraph::addarc(unsigned int b, unsigned int e) {
+    if (!vertexexistence(b)) { return 1; }
+    if (!vertexexistence(e)) { return 2; }
+    if (acrexistence(e, b)) { return 3; }
+    if (b == e) { return 4; }
+
+    Vertex *v1 = list;
+    Vertex *v2 = list;
+    Vertex *nowv = list;
+    while (v1->field != b || v2->field != e) {
+        if (nowv->field == b) { v1 = nowv; }
+        if (nowv->field == e) { v2 = nowv; }
+        nowv = nowv->next;
+    }
+    addadjv(v1, e);
+    addadjv(v2, b);
+    return 0;
+}
+
+void MyGraph::addadjv(Vertex *v, unsigned int av) {
+    AdjVertex *newadjv = new AdjVertex(av);
+    if (v->myadj == nullptr) {
+
+        v->myadj = newadjv;
+    } else {
+        v->myadj->prev = newadjv;
+        newadjv->next = v->myadj;
+        v->myadj = newadjv;
+    }
+}
+
+bool MyGraph::acrexistence(unsigned int b, unsigned int e) {
+    bool flag = false;
+    Vertex *v1 = list;
+    Vertex *v2 = list;
+    Vertex *nowv = list;
+    while (v1->field != b || v2->field != e) {
+        if (nowv->field == b) { v1 = nowv; }
+        if (nowv->field == e) { v2 = nowv; }
+        nowv = nowv->next;
+    }
+
+    AdjVertex *nowad = v1->myadj;
+    while (flag != true && nowad != nullptr) {
+        if (nowad->field == e) {
+            flag = true;
+        }
+        nowad = nowad->next;
+    }
+    nowad = v2->myadj;
+    while (flag != true && nowad != nullptr) {
+        if (nowad->field == b) {
+            flag = true;
+        }
+        nowad = nowad->next;
+    }
+
+    return flag;
+}
+
+

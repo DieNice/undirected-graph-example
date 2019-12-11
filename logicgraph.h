@@ -9,27 +9,27 @@ int **readSpecialMatrix(); //return specisal matrix adjacent
 void printSpecialMatrix(int **adjlist);//print to screen matrix adjacent
 
 struct AdjVertex {
-    int field;
+    unsigned int field;
     AdjVertex *next;
     AdjVertex *prev;
 
-    AdjVertex(int v);
+    AdjVertex(unsigned int v);
 
 };
 
 struct Vertex {
     AdjVertex *myadj;
-    int field;
+    unsigned int field;
     Vertex *next;
     Vertex *prev;
 
-    Vertex(int v);
+    Vertex(unsigned int v);
 
 };
 
 class MyGraph {
 private:
-    int numvertex;
+    unsigned int numvertex;
     Vertex *list;
 
     /*    my features*/
@@ -39,16 +39,25 @@ private:
 
     /*    my features*/
 
+    bool vertexexistence(unsigned int v);
+
+    bool acrexistence(unsigned int b, unsigned int e);
+
+    void addadjv(Vertex *v, unsigned int av);
+
+
 public:
-    MyGraph(int nv);
+    MyGraph();
 
     ~MyGraph();
 
+    unsigned int getnumvertex();
+
     bool readSpecialMatrix(int **inputadjlist);
 
-    int addvertex(int v);
+    int addvertex(unsigned int v);
 
-    int addarc(int b, int e);
+    int addarc(unsigned int b, unsigned int e);
 
     void printGraph();
 
