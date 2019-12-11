@@ -284,3 +284,22 @@ bool MyGraph::acrexistence(unsigned int b, unsigned int e) {
 }
 
 
+std::ostream &operator<<(std::ostream &out, const MyGraph &obj) {
+    if (obj.list == nullptr) {
+        out << "Graph is empty" << endl;
+    } else {
+        Vertex *nowv = obj.list;
+        AdjVertex *nowadj;
+        while (nowv != nullptr) {
+            out << "\n" << nowv->field << "<-";
+            nowadj = nowv->myadj;
+            while (nowadj != nullptr) {
+                out << nowadj->field << ",";
+                nowadj = nowadj->next;
+            }
+            nowv = nowv->next;
+        }
+
+    }
+    return out;
+}

@@ -13,7 +13,7 @@ int main() {
     myGraph.addarc(7, 7);
 
 
-    myGraph.printGraph();
+    cout << myGraph;
     cout << "\nnum vertex=" << myGraph.getnumvertex();
     return 0;
 }

@@ -61,6 +61,8 @@ public:
 
     void printGraph();
 
+    friend std::ostream &operator<<(std::ostream &out, const MyGraph &obj);
+
 };
 
 
