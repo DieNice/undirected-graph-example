@@ -197,6 +197,7 @@ int MyGraph::addvertex(unsigned int v) {
         Vertex *newvertex = new Vertex(v);
         list = newvertex;
         numvertex++;
+        return 0;
     } else {
         if (vertexexistence(v)) { return 2; }
         Vertex *newvertex = new Vertex(v);
@@ -204,6 +205,7 @@ int MyGraph::addvertex(unsigned int v) {
         newvertex->next = list;
         list = newvertex;
         numvertex++;
+        return 0;
     }
 
 
@@ -303,3 +305,4 @@ std::ostream &operator<<(std::ostream &out, const MyGraph &obj) {
     }
     return out;
 }
+

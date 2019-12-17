@@ -45,6 +45,8 @@ private:
 
     void addadjv(Vertex *v, unsigned int av);
 
+    void deladjv(Vertex *v, unsigned int av);
+
 
 public:
     MyGraph();
@@ -58,6 +60,10 @@ public:
     int addvertex(unsigned int v);
 
     int addarc(unsigned int b, unsigned int e);
+
+    int delvertex(unsigned int v);
+
+    int delarc(unsigned int b, unsigned int e);
 
     void printGraph();
 
