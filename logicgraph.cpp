@@ -230,15 +230,9 @@ int MyGraph::addarc(unsigned int b, unsigned int e) {
     if (!vertexexistence(e)) { return 2; }
     if (acrexistence(e, b)) { return 3; }
     if (b == e) { return 4; }
-
-    Vertex *v1 = list;
-    Vertex *v2 = list;
+    Vertex *v1 = searchv(b);
+    Vertex *v2 = searchv(e);
     Vertex *nowv = list;
-    while (v1->field != b || v2->field != e) {
-        if (nowv->field == b) { v1 = nowv; }
-        if (nowv->field == e) { v2 = nowv; }
-        nowv = nowv->next;
-    }
     addadjv(v1, e);
     addadjv(v2, b);
     return 0;
@@ -285,7 +279,6 @@ bool MyGraph::acrexistence(unsigned int b, unsigned int e) {
     return flag;
 }
 
-
 std::ostream &operator<<(std::ostream &out, const MyGraph &obj) {
     if (obj.list == nullptr) {
         out << "Graph is empty" << endl;
@@ -306,3 +299,45 @@ std::ostream &operator<<(std::ostream &out, const MyGraph &obj) {
     return out;
 }
 
+int MyGraph::delvertex(unsigned int v) {
+    if (list == nullptr) { return 1; }
+    if (!vertexexistence(v)) { return 2; }
+    Vertex *nowv = searchv(v);
+}
+
+int MyGraph::delarc(unsigned int b, unsigned int e) {
+    if (!vertexexistence(b)) { return 1; }
+    if (!vertexexistence(e)) { return 2; }
+    if (!acrexistence(e, b)) { return 3; }
+    if (b == e) { return 4; }
+    Vertex *v1 = searchv(b);
+    Vertex *v2 = searchv(e);
+    Vertex *nowv = list;
+    deladjv(v1, e);
+    deladjv(v2, b);
+    return 0;
+}
+
+void MyGraph::deladjv(Vertex *v, unsigned int av) {
+    AdjVertex *fordel = searchadjv(v, av);
+    if (fordel->prev == nullptr) {
+        v->myadj = fordel->next;
+    } else { fordel->prev->next = fordel->next; }
+    delete[] fordel;
+}
+
+Vertex *MyGraph::searchv(unsigned int v) {
+    Vertex *nowv = list;
+    while (nowv->field != v && nowv != nullptr) {
+        nowv = nowv->next;
+    }
+    return nowv;
+}
+
+AdjVertex *MyGraph::searchadjv(Vertex *v, unsigned int adjv) {
+    AdjVertex *nowadjv = v->myadj;
+    while (nowadjv->field != adjv && nowadjv != nullptr) {
+        nowadjv = nowadjv->next;
+    }
+    return nowadjv;
+}

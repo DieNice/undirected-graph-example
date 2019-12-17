@@ -47,6 +47,10 @@ private:
 
     void deladjv(Vertex *v, unsigned int av);
 
+    Vertex *searchv(unsigned int v);
+
+    AdjVertex *searchadjv(Vertex *v,unsigned int adjv);
+
 
 public:
     MyGraph();
