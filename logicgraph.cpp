@@ -192,7 +192,6 @@ void MyGraph::printGraph() {
 
 int MyGraph::addvertex(unsigned int v) {
     if (v == 0) { return 1; } //vertex is zero
-
     if (list == nullptr) {
         Vertex *newvertex = new Vertex(v);
         list = newvertex;
@@ -207,8 +206,6 @@ int MyGraph::addvertex(unsigned int v) {
         numvertex++;
         return 0;
     }
-
-
 }
 
 bool MyGraph::vertexexistence(unsigned int v) {
@@ -232,7 +229,6 @@ int MyGraph::addarc(unsigned int b, unsigned int e) {
     if (b == e) { return 4; }
     Vertex *v1 = searchv(b);
     Vertex *v2 = searchv(e);
-    Vertex *nowv = list;
     addadjv(v1, e);
     addadjv(v2, b);
     return 0;
@@ -303,6 +299,18 @@ int MyGraph::delvertex(unsigned int v) {
     if (list == nullptr) { return 1; }
     if (!vertexexistence(v)) { return 2; }
     Vertex *nowv = searchv(v);
+    while (nowv->myadj != nullptr) {
+        delarc(v, nowv->myadj->field);
+    }
+
+    if (nowv->prev == nullptr) {
+        list = nowv->next;
+        if (list != nullptr) { list->prev = nullptr; }
+    } else {
+        nowv->prev->next = nowv->next;
+        if (nowv->next != nullptr) { nowv->next->prev = nowv->prev->next; }
+    }
+    delete nowv;
 }
 
 int MyGraph::delarc(unsigned int b, unsigned int e) {
@@ -312,7 +320,6 @@ int MyGraph::delarc(unsigned int b, unsigned int e) {
     if (b == e) { return 4; }
     Vertex *v1 = searchv(b);
     Vertex *v2 = searchv(e);
-    Vertex *nowv = list;
     deladjv(v1, e);
     deladjv(v2, b);
     return 0;
@@ -322,7 +329,11 @@ void MyGraph::deladjv(Vertex *v, unsigned int av) {
     AdjVertex *fordel = searchadjv(v, av);
     if (fordel->prev == nullptr) {
         v->myadj = fordel->next;
-    } else { fordel->prev->next = fordel->next; }
+        if (v->myadj != nullptr) { v->myadj->prev = nullptr; }
+    } else {
+        fordel->prev->next = fordel->next;
+        if (fordel->next != nullptr) { fordel->next->prev = fordel->prev; }
+    }
     delete[] fordel;
 }
 
