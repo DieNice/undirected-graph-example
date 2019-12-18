@@ -1,3 +1,4 @@
+#include <queue>
 #include "logicgraph.h"
 
 /*list of lists*/
@@ -352,3 +353,47 @@ AdjVertex *MyGraph::searchadjv(Vertex *v, unsigned int adjv) {
     }
     return nowadjv;
 }
+
+unsigned int getindex(unsigned int *m, unsigned int v) {
+    int i = 0;
+    while (m[i] != v) {
+        i++;
+    }
+    return i;
+}
+
+int MyGraph::bfs(unsigned int u) {
+    if (!vertexexistence(u)) { return 1; }
+    bool *used = new bool[numvertex];
+    unsigned int *vertexes = new unsigned int[numvertex];
+    Vertex *nowv = list;
+    for (int i = 0; i < numvertex; i++) {
+        vertexes[i] = nowv->field;
+        nowv = nowv->next;
+    }
+    cout << "\nBFS=";
+    used[getindex(vertexes, u)] = true;
+    cout << u << " ";
+
+    queue<int> q;
+    q.push(u);
+    while (!q.empty()) {
+        unsigned int u = q.front();
+        q.pop();
+        AdjVertex *nowvadj = searchv(u)->myadj;
+        while (nowvadj != nullptr) {
+            unsigned int v = nowvadj->field;
+            unsigned int index = getindex(vertexes, v);
+            if (!used[index]) {
+                used[index] = true;
+                q.push(v);
+                cout << v << " ";
+            }
+            nowvadj = nowvadj->next;
+        }
+    }
+    delete[] vertexes;
+    delete[] used;
+    return 0;
+}
+

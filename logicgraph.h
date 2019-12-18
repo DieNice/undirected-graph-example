@@ -49,7 +49,7 @@ private:
 
     Vertex *searchv(unsigned int v);
 
-    AdjVertex *searchadjv(Vertex *v,unsigned int adjv);
+    AdjVertex *searchadjv(Vertex *v, unsigned int adjv);
 
 
 public:
@@ -72,6 +72,8 @@ public:
     void printGraph();
 
     friend std::ostream &operator<<(std::ostream &out, const MyGraph &obj);
+
+    int bfs(unsigned int u);
 
 };
 
