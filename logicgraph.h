@@ -77,7 +77,9 @@ public:
 
     int bfs(unsigned int u);
 
-    int colors(unsigned int u);
+    int bfscolors(unsigned int u);
+
+    int colors(unsigned u);
 
 };
 

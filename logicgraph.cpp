@@ -312,6 +312,7 @@ int MyGraph::delvertex(unsigned int v) {
         if (nowv->next != nullptr) { nowv->next->prev = nowv->prev->next; }
     }
     delete nowv;
+    return 0;
 }
 
 int MyGraph::delarc(unsigned int b, unsigned int e) {
@@ -398,7 +399,7 @@ int MyGraph::bfs(unsigned int u) {
 }
 
 
-int MyGraph::colors(unsigned int u) {
+int MyGraph::bfscolors(unsigned int u) {
     if (!vertexexistence(u)) { return -1; }
     bool *used = new bool[numvertex];
     unsigned int *clrs = new unsigned int[numvertex];
@@ -457,4 +458,55 @@ bool MyGraph::clrisfree(unsigned int v, unsigned int *vertexes, unsigned int *cl
         nowadjv = nowadjv->next;
     }
     return flag;
+}
+
+int MyGraph::colors(unsigned u) {
+    if (!vertexexistence(u)) { return -1; }
+    bool *used = new bool[numvertex];
+    unsigned int *clrs = new unsigned int[numvertex];
+    unsigned int *vertexes = new unsigned int[numvertex];
+    Vertex *nowv = list;
+    for (int i = 0; i < numvertex; i++) {
+        vertexes[i] = nowv->field;
+        clrs[i] = 0;
+        nowv = nowv->next;
+    }
+    clrs[getindex(vertexes, u)] = 1;
+    used[getindex(vertexes, u)] = true;
+    cout << "\nColors=" << u << "-1;";
+
+    nowv = searchv(u);
+    bool forward = true;
+    bool stop = false;
+    while (!stop) {
+        unsigned int v = nowv->field;
+        unsigned int index = getindex(vertexes, v);
+        if (!used[index]) {
+            used[index] = true;
+            unsigned int minclr = 1;
+            while (!clrisfree(v, vertexes, clrs, minclr)) {
+                minclr++;
+            }
+            clrs[index] = minclr;
+            cout << v << "-" << minclr << ";";
+        }
+
+        if (forward == true && nowv->next != nullptr) { nowv = nowv->next; }
+        else { forward = false;}
+
+        if (forward == false && nowv->prev == nullptr) { stop = true; }
+        if (forward == false && nowv->prev != nullptr) { nowv = nowv->prev; }
+    }
+
+    unsigned int maxclr = clrs[0];
+    for (int i = 1; i < numvertex; i++) {
+        if (maxclr < clrs[i]) {
+            maxclr = clrs[i];
+        }
+    }
+
+    delete[] vertexes;
+    delete[] clrs;
+    delete[] used;
+    return maxclr;
 }
