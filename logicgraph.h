@@ -51,6 +51,8 @@ private:
 
     AdjVertex *searchadjv(Vertex *v, unsigned int adjv);
 
+    bool clrisfree(unsigned int v, unsigned int *vertexes, unsigned int *clrs, int clr);
+
 
 public:
     MyGraph();
@@ -74,6 +76,8 @@ public:
     friend std::ostream &operator<<(std::ostream &out, const MyGraph &obj);
 
     int bfs(unsigned int u);
+
+    int colors(unsigned int u);
 
 };
 

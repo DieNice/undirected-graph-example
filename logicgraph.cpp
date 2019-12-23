@@ -397,3 +397,64 @@ int MyGraph::bfs(unsigned int u) {
     return 0;
 }
 
+
+int MyGraph::colors(unsigned int u) {
+    if (!vertexexistence(u)) { return -1; }
+    bool *used = new bool[numvertex];
+    unsigned int *clrs = new unsigned int[numvertex];
+    unsigned int *vertexes = new unsigned int[numvertex];
+    Vertex *nowv = list;
+    for (int i = 0; i < numvertex; i++) {
+        vertexes[i] = nowv->field;
+        clrs[i] = 0;
+        nowv = nowv->next;
+    }
+    clrs[getindex(vertexes, u)] = 1;
+    used[getindex(vertexes, u)] = true;
+    cout << "\nColors=" << u << "-1;";
+    queue<int> q;
+    q.push(u);
+    while (!q.empty()) {
+        unsigned int u = q.front();
+        q.pop();
+        AdjVertex *nowvadj = searchv(u)->myadj;
+        while (nowvadj != nullptr) {
+            unsigned int v = nowvadj->field;
+            unsigned int index = getindex(vertexes, v);
+            if (!used[index]) {
+                used[index] = true;
+                q.push(v);
+                unsigned int minclr = 1;
+                while (!clrisfree(v, vertexes, clrs, minclr)) {
+                    minclr++;
+                }
+                clrs[index] = minclr;
+                cout << v << "-" << minclr << ";";
+            }
+            nowvadj = nowvadj->next;
+        }
+    }
+
+    unsigned int maxclr = clrs[0];
+    for (int i = 1; i < numvertex; i++) {
+        if (maxclr < clrs[i]) {
+            maxclr = clrs[i];
+        }
+    }
+
+    delete[] vertexes;
+    delete[] clrs;
+    delete[] used;
+    return maxclr;
+}
+
+bool MyGraph::clrisfree(unsigned int v, unsigned int *vertexes, unsigned int *clrs, int clr) {
+    AdjVertex *nowadjv = searchv(v)->myadj;
+    bool flag = true;
+    while (nowadjv != nullptr) {
+        int index = getindex(vertexes, nowadjv->field);
+        if (clrs[index] == clr) { return !flag; }
+        nowadjv = nowadjv->next;
+    }
+    return flag;
+}
