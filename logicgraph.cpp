@@ -498,8 +498,9 @@ int MyGraph::colors(unsigned u) {
         if (forward == false && nowv->prev != nullptr) { nowv = nowv->prev; }
     }
     ///part2
+
     nowv = list;
-    while (nowv->field != maxclr) { nowv = nowv->next; }
+    while (clrs[getindex(vertexes, nowv->field)] != maxclr) { nowv = nowv->next; }
 
     returncolor(nowv, vertexes, clrs, maxclr);
 
@@ -530,26 +531,27 @@ void MyGraph::returncolor(Vertex *v, unsigned int *vertexes, unsigned int *clrs,
     }
     if (maxadj == 0) { return; }
     int index = getindex(vertexes, maxadj);
+
     if (clrs[index] + 1 < maxclr) {
         clrs[index] = clrs[index] + 1;
 
-        nowadj = v->myadj;
-        while (nowadj != nullptr) {
-            if (nowadj->field > maxadj) {
-                unsigned int index = getindex(vertexes, nowadj->field);
+        Vertex *nowv = list;
+        while (nowv != nullptr) {
+            if (nowv->field > maxadj) {
+                unsigned int index = getindex(vertexes, nowv->field);
                 unsigned int minclr = 1;
-                while (!clrisfree(nowadj->field, vertexes, clrs, minclr)) {
+                while (!clrisfree(nowv->field, vertexes, clrs, minclr)) {
                     minclr++;
                 }
-                if (minclr == maxclr) {
-                    returncolor(searchv(nowadj->field), vertexes, clrs, maxclr);
+                if (minclr >= maxclr) {
+                    returncolor(searchv(nowv->field), vertexes, clrs, maxclr);
                 }
                 clrs[index] = minclr;
-                if (searchv(nowadj->field) == list) {
+                if (searchv(nowv->field) == list) {
                     return;
                 }
             }
-            nowadj = nowadj->next;
+            nowv = nowv->next;
         }
 
 
