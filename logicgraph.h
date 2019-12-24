@@ -51,9 +51,11 @@ private:
 
     AdjVertex *searchadjv(Vertex *v, unsigned int adjv);
 
-    bool clrisfree(unsigned int v, unsigned int *vertexes, unsigned int *clrs, int clr);
+    bool clrisfree(unsigned int v, unsigned int *vertexes, int *clrs, int clr);
 
-    void returncolor(Vertex *v, unsigned int *vertexes, unsigned int *clrs,unsigned int maxclr);
+    void returncolor(Vertex *v, unsigned int *vertexes,  int *clrs,unsigned int maxclr);
+
+    void bfscolors(unsigned int u);
 
 public:
     MyGraph();
@@ -78,9 +80,7 @@ public:
 
     int bfs(unsigned int u);
 
-    int bfscolors(unsigned int u);
-
-    int colors(unsigned u);
+    void colors();
 
 };
 
