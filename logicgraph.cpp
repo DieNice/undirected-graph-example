@@ -480,16 +480,27 @@ void MyGraph::colors() {
     }
 
     ///part2
-
     nowv = list;
     int i = 0;
     while (clrs[i] != maxclr) {
         i++;
         nowv = nowv->next;
     }
+    int *subclrs = new int[numvertex];
+    for (int i = 0; i < numvertex; i++) {
+        subclrs[i] = clrs[i];
+    }
 
-    returncolor(nowv, vertexes, clrs, maxclr);
+    returncolor(nowv, vertexes, subclrs, maxclr);
 
+    unsigned int maxsubclr = subclrs[0];
+    for (int i = 0; i < numvertex; i++) {
+        if (subclrs[i] > maxsubclr) { maxsubclr = subclrs[i]; }
+    }
+    if (maxsubclr < maxclr) {
+        delete[] clrs;
+        clrs = subclrs;
+    }
     nowv = list;
     cout << "\nColors=";
     i = 0;
@@ -499,6 +510,7 @@ void MyGraph::colors() {
         i++;
         nowv = nowv->next;
     }
+    delete[] subclrs;
     delete[] vertexes;
     delete[] clrs;
 
