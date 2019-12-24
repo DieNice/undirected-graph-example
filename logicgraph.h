@@ -53,6 +53,7 @@ private:
 
     bool clrisfree(unsigned int v, unsigned int *vertexes, unsigned int *clrs, int clr);
 
+    void returncolor(Vertex *v, unsigned int *vertexes, unsigned int *clrs,unsigned int maxclr);
 
 public:
     MyGraph();

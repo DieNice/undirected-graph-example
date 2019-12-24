@@ -309,8 +309,9 @@ int MyGraph::delvertex(unsigned int v) {
         if (list != nullptr) { list->prev = nullptr; }
     } else {
         nowv->prev->next = nowv->next;
-        if (nowv->next != nullptr) { nowv->next->prev = nowv->prev->next; }
+        if (nowv->next != nullptr) { nowv->next->prev = nowv->prev; }
     }
+    numvertex--;
     delete nowv;
     return 0;
 }
@@ -473,11 +474,10 @@ int MyGraph::colors(unsigned u) {
     }
     clrs[getindex(vertexes, u)] = 1;
     used[getindex(vertexes, u)] = true;
-    cout << "\nColors=" << u << "-1;";
-
     nowv = searchv(u);
     bool forward = true;
     bool stop = false;
+    unsigned int maxclr = 1;
     while (!stop) {
         unsigned int v = nowv->field;
         unsigned int index = getindex(vertexes, v);
@@ -488,25 +488,72 @@ int MyGraph::colors(unsigned u) {
                 minclr++;
             }
             clrs[index] = minclr;
-            cout << v << "-" << minclr << ";";
+            if (minclr > maxclr) { maxclr = minclr; }
         }
 
         if (forward == true && nowv->next != nullptr) { nowv = nowv->next; }
-        else { forward = false;}
+        else { forward = false; }
 
         if (forward == false && nowv->prev == nullptr) { stop = true; }
         if (forward == false && nowv->prev != nullptr) { nowv = nowv->prev; }
     }
+    ///part2
+    nowv = list;
+    while (nowv->field != maxclr) { nowv = nowv->next; }
 
-    unsigned int maxclr = clrs[0];
-    for (int i = 1; i < numvertex; i++) {
-        if (maxclr < clrs[i]) {
-            maxclr = clrs[i];
-        }
+    returncolor(nowv, vertexes, clrs, maxclr);
+
+    nowv = list;
+    cout << "\nColors=";
+    int i = 0;
+    while (nowv != nullptr) {
+        cout << nowv->field << "-";
+        cout << clrs[i] << ";";
+        i++;
+        nowv = nowv->next;
     }
 
     delete[] vertexes;
     delete[] clrs;
     delete[] used;
     return maxclr;
+}
+
+void MyGraph::returncolor(Vertex *v, unsigned int *vertexes, unsigned int *clrs, unsigned int maxclr) {
+    unsigned int maxadj = 0;
+    AdjVertex *nowadj = v->myadj;
+    while (nowadj != nullptr) {
+        if (nowadj->field > maxadj && nowadj->field < v->field) {
+            maxadj = nowadj->field;
+        }
+        nowadj = nowadj->next;
+    }
+    if (maxadj == 0) { return; }
+    int index = getindex(vertexes, maxadj);
+    if (clrs[index] + 1 < maxclr) {
+        clrs[index] = clrs[index] + 1;
+
+        nowadj = v->myadj;
+        while (nowadj != nullptr) {
+            if (nowadj->field > maxadj) {
+                unsigned int index = getindex(vertexes, nowadj->field);
+                unsigned int minclr = 1;
+                while (!clrisfree(nowadj->field, vertexes, clrs, minclr)) {
+                    minclr++;
+                }
+                if (minclr == maxclr) {
+                    returncolor(searchv(nowadj->field), vertexes, clrs, maxclr);
+                }
+                clrs[index] = minclr;
+                if (searchv(nowadj->field) == list) {
+                    return;
+                }
+            }
+            nowadj = nowadj->next;
+        }
+
+
+    } else {
+        returncolor(searchv(maxadj), vertexes, clrs, maxclr);
+    }
 }
