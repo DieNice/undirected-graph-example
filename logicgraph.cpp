@@ -192,7 +192,7 @@ void MyGraph::printGraph() {
 }
 
 int MyGraph::addvertex(unsigned int v) {
-    if (v == 0) { return 1; } //vertex is zero
+/*    if (v == 0) { return 1; } //vertex is zero*/
     if (list == nullptr) {
         Vertex *newvertex = new Vertex(v);
         list = newvertex;
@@ -356,10 +356,12 @@ AdjVertex *MyGraph::searchadjv(Vertex *v, unsigned int adjv) {
     return nowadjv;
 }
 
-unsigned int getindex(unsigned int *m, unsigned int v) {
+unsigned int MyGraph::getindex(unsigned int v) {
+    Vertex *nowv = list;
     int i = 0;
-    while (m[i] != v) {
+    while (nowv->field != v) {
         i++;
+        nowv = nowv->next;
     }
     return i;
 }
@@ -367,14 +369,8 @@ unsigned int getindex(unsigned int *m, unsigned int v) {
 int MyGraph::bfs(unsigned int u) {
     if (!vertexexistence(u)) { return 1; }
     bool *used = new bool[numvertex];
-    unsigned int *vertexes = new unsigned int[numvertex];
-    Vertex *nowv = list;
-    for (int i = 0; i < numvertex; i++) {
-        vertexes[i] = nowv->field;
-        nowv = nowv->next;
-    }
     cout << "\nBFS=";
-    used[getindex(vertexes, u)] = true;
+    used[getindex(u)] = true;
     cout << u << " ";
 
     queue<int> q;
@@ -385,7 +381,7 @@ int MyGraph::bfs(unsigned int u) {
         AdjVertex *nowvadj = searchv(u)->myadj;
         while (nowvadj != nullptr) {
             unsigned int v = nowvadj->field;
-            unsigned int index = getindex(vertexes, v);
+            unsigned int index = getindex(v);
             if (!used[index]) {
                 used[index] = true;
                 q.push(v);
@@ -394,161 +390,95 @@ int MyGraph::bfs(unsigned int u) {
             nowvadj = nowvadj->next;
         }
     }
-    delete[] vertexes;
     delete[] used;
     return 0;
 }
 
-
-void MyGraph::bfscolors(unsigned int u) {
-    bool *used = new bool[numvertex];
-    int *clrs = new int[numvertex];
-    unsigned int *vertexes = new unsigned int[numvertex];
-    Vertex *nowv = list;
-    for (int i = 0; i < numvertex; i++) {
-        vertexes[i] = nowv->field;
-        clrs[i] = 0;
-        nowv = nowv->next;
-    }
-    clrs[getindex(vertexes, u)] = 1;
-    used[getindex(vertexes, u)] = true;
-    cout << "\nColors=" << u << "-1;";
-    queue<int> q;
-    q.push(u);
-    while (!q.empty()) {
-        unsigned int u = q.front();
-        q.pop();
-        AdjVertex *nowvadj = searchv(u)->myadj;
-        while (nowvadj != nullptr) {
-            unsigned int v = nowvadj->field;
-            unsigned int index = getindex(vertexes, v);
-            if (!used[index]) {
-                used[index] = true;
-                q.push(v);
-                unsigned int minclr = 1;
-                while (!clrisfree(v, vertexes, clrs, minclr)) {
-                    minclr++;
-                }
-                clrs[index] = minclr;
-                cout << v << "-" << minclr << ";";
-            }
-            nowvadj = nowvadj->next;
-        }
-    }
-
-    unsigned int maxclr = clrs[0];
-    for (int i = 1; i < numvertex; i++) {
-        if (maxclr < clrs[i]) {
-            maxclr = clrs[i];
-        }
-    }
-
-    delete[] vertexes;
-    delete[] clrs;
-    delete[] used;
-}
-
-bool MyGraph::clrisfree(unsigned int v, unsigned int *vertexes, int *clrs, int clr) {
-    AdjVertex *nowadjv = searchv(v)->myadj;
+bool MyGraph::clrisfree(unsigned int i, int *clrs, int clr) {
     bool flag = true;
-    while (nowadjv != nullptr) {
-        int index = getindex(vertexes, nowadjv->field);
-        if (clrs[index] == clr) { return !flag; }
-        nowadjv = nowadjv->next;
+    Vertex *v = list;
+    for (int j = 0; j < i; j++) { v = v->next; }
+
+    AdjVertex *nowadj = v->myadj;
+    while (nowadj != nullptr) {
+        int index = getindex(nowadj->field);
+        if (clrs[index] == clr) { return false; }
+        nowadj = nowadj->next;
     }
     return flag;
 }
 
 void MyGraph::colors() {
-    ///part1
     int *clrs = new int[numvertex];
-    unsigned int *vertexes = new unsigned int[numvertex];
+    for (int i = 0; i < numvertex; i++) { clrs[i] = -1; }
+
+    int maxclr = -1;
+    for (int i = 0; i < numvertex; i++) {
+        int minclr = 0;
+        while (!clrisfree(i, clrs, minclr)) { minclr++; }
+        clrs[i] = minclr;
+        if (minclr > maxclr) { maxclr = minclr; }
+    }
+
+    bool flag = false;
+    int *subclrs = new int[numvertex];
+    for (int i = 0; i < numvertex; i++) { subclrs[i] = clrs[i]; }
+    while (!flag) {
+        unsigned int first = 0;
+        while (subclrs[first] != maxclr) { first++; }
+        returncolor(first, subclrs, maxclr);
+        for (int j = 0; j < numvertex; j++) { if (subclrs[j] == -1) { flag = true; }}
+        if (!flag) {
+            for (int j = 0; j < numvertex; j++) { clrs[j] = subclrs[j]; }
+            maxclr--;
+        }
+    }
+
+    cout << "\nColors" << endl;
     Vertex *nowv = list;
     for (int i = 0; i < numvertex; i++) {
-        vertexes[i] = nowv->field;
-        clrs[i] = -1;
+        cout << nowv->field << " ";
         nowv = nowv->next;
     }
-    unsigned int maxclr = 0;
-    for (int i = 0; i < numvertex; i++) {
-        unsigned int minclr = 0;
-        while (!clrisfree(vertexes[i], vertexes, clrs, minclr)) {
-            minclr++;
-            if (minclr > maxclr) { maxclr = minclr; }
-        }
-        clrs[i] = minclr;
-    }
-
-    ///part2
-    nowv = list;
-    int i = 0;
-    while (clrs[i] != maxclr) {
-        i++;
-        nowv = nowv->next;
-    }
-    int *subclrs = new int[numvertex];
-    for (int i = 0; i < numvertex; i++) {
-        subclrs[i] = clrs[i];
-    }
-
-    returncolor(nowv, vertexes, subclrs, maxclr);
-
-    unsigned int maxsubclr = subclrs[0];
-    for (int i = 0; i < numvertex; i++) {
-        if (subclrs[i] > maxsubclr) { maxsubclr = subclrs[i]; }
-    }
-    if (maxsubclr < maxclr) {
-        delete[] clrs;
-        clrs = subclrs;
-    }
-    nowv = list;
-    cout << "\nColors=";
-    i = 0;
-    while (nowv != nullptr) {
-        cout << nowv->field << "-";
-        cout << clrs[i] + 1 << ";";
-        i++;
-        nowv = nowv->next;
-    }
-    delete[] subclrs;
-    delete[] vertexes;
+    cout << endl;
+    for (int i = 0; i < numvertex; i++) { cout << clrs[i] + 1 << " "; }
     delete[] clrs;
-
 }
 
-void MyGraph::returncolor(Vertex *v, unsigned int *vertexes, int *clrs, unsigned int maxclr) {
-    int maxadj = -1;
+void MyGraph::returncolor(unsigned int i, int *clrs, unsigned int maxclr) {
+
+    //находим смежную вершину с максимальным номером, меньше номера вершины (i) Xk
+    Vertex *v = list;
+    for (int j = 0; j < i; j++) { v = v->next; }
     AdjVertex *nowadj = v->myadj;
+    int maxadj = -1;
     while (nowadj != nullptr) {
-        int h = getindex(vertexes, v->field);
-        int g = getindex(vertexes, nowadj->field);
-        if ((g > maxadj) && (g < h)) {
-            maxadj = g;
+        int index = getindex(nowadj->field);
+        if (index > maxadj && index < i) {
+            maxadj = index;
         }
         nowadj = nowadj->next;
     }
-    if (maxadj == -1) { return; }
 
-    if (clrs[maxadj] + 1 < maxclr) {
-        clrs[maxadj] = clrs[maxadj] + 1;
+    if (maxadj < 0) { return; }
 
-        Vertex *nowv = list;
-        while (nowv != nullptr) {
-            int i = getindex(vertexes, nowv->field);
-            if (i > maxadj) {
-                unsigned int minclr = 0;
-                while (!clrisfree(vertexes[i], vertexes, clrs, minclr)) { minclr++; }
-                if (minclr == maxclr) {
-                    returncolor(nowv, vertexes, clrs, maxclr);
-                }
-                clrs[i] = minclr;
-                if (i == 0) {
-                    return;
-                }
-            }
-            nowv = nowv->next;
+    //пытаемся перекрасить в цвет больший собственного, но меньше чем макс-й
+    for (int j = maxadj + 1; j < numvertex; j++) { clrs[j] = -1; }
+    int Jk = clrs[maxadj] + 1;
+    while (!clrisfree(maxadj, clrs, Jk)) { Jk++; }
+    if (Jk < maxclr) {
+        clrs[maxadj] = Jk;
+        //перекрашиваем смежные вершины номером больше v
+        //обнуляем расскраски вершин больше Xk
+        for (int j = maxadj + 1; j < numvertex; j++) { clrs[j] = -1; }
+        //раскрашиваем
+        for (int j = maxadj + 1; j < numvertex; j++) {
+            int minclr = 0;
+            while (!clrisfree(j, clrs, minclr)) { minclr++; }
+            if (minclr == maxclr) {
+                returncolor(j, clrs, maxclr);
+                break;
+            } else { clrs[j] = minclr; }
         }
-    } else {
-        returncolor(searchv(vertexes[maxadj]), vertexes, clrs, maxclr);
-    }
+    } else { returncolor(maxadj, clrs, maxclr); }
 }
