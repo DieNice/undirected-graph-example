@@ -408,30 +408,47 @@ bool MyGraph::clrisfree(unsigned int i, int *clrs, int clr) {
     return flag;
 }
 
+int MyGraph::getmaxcolor(int *clrs) {
+    int max = clrs[0];
+    for (int i = 1; i < numvertex; i++) {
+        if (clrs[i] > max) { max = clrs[i]; }
+    }
+    return max;
+}
+
+bool MyGraph::isbadColors(int *clrs) {
+    bool result = false;
+    for (int i = 0; i < numvertex; i++) {
+        if (clrs[i] < 0) {
+            result = true;
+            break;
+        }
+    }
+    return result;
+}
+
 void MyGraph::colors() {
     int *clrs = new int[numvertex];
-    for (int i = 0; i < numvertex; i++) { clrs[i] = -1; }
-
-    int maxclr = -1;
+    for (int i = 0; i < numvertex; i++) { clrs[i] = -1; } //обнуляем раскраски
     for (int i = 0; i < numvertex; i++) {
         int minclr = 0;
         while (!clrisfree(i, clrs, minclr)) { minclr++; }
         clrs[i] = minclr;
-        if (minclr > maxclr) { maxclr = minclr; }
     }
-
-    bool flag = false;
-    int *subclrs = new int[numvertex];
+    int q = getmaxcolor(clrs); //находим макс цвет
+    int *subclrs = new int[numvertex]; //доп. массив если расскраски не удались
     for (int i = 0; i < numvertex; i++) { subclrs[i] = clrs[i]; }
+    bool flag = false;
     while (!flag) {
-        unsigned int first = 0;
-        while (subclrs[first] != maxclr) { first++; }
-        returncolor(first, subclrs, maxclr);
-        for (int j = 0; j < numvertex; j++) { if (subclrs[j] == -1) { flag = true; }}
-        if (!flag) {
+        unsigned int Xq = 0;
+        while (subclrs[Xq] != q) { Xq++; } //находим Xk*
+        returncolor(Xq, subclrs, q);
+        int nowclr = getmaxcolor(subclrs);
+        if (nowclr < q && !isbadColors(subclrs)) {
             for (int j = 0; j < numvertex; j++) { clrs[j] = subclrs[j]; }
-            maxclr--;
-        }
+            q = nowclr;
+        } else { flag = true; }
+
     }
 
     cout << "\nColors" << endl;
@@ -446,7 +463,6 @@ void MyGraph::colors() {
 }
 
 void MyGraph::returncolor(unsigned int i, int *clrs, unsigned int maxclr) {
-
     //находим смежную вершину с максимальным номером, меньше номера вершины (i) Xk
     Vertex *v = list;
     for (int j = 0; j < i; j++) { v = v->next; }
@@ -454,31 +470,27 @@ void MyGraph::returncolor(unsigned int i, int *clrs, unsigned int maxclr) {
     int maxadj = -1;
     while (nowadj != nullptr) {
         int index = getindex(nowadj->field);
-        if (index > maxadj && index < i) {
-            maxadj = index;
-        }
+        if (index > maxadj && index < i) { maxadj = index; }
         nowadj = nowadj->next;
     }
-
     if (maxadj < 0) { return; }
-
     //пытаемся перекрасить в цвет больший собственного, но меньше чем макс-й
+    //обнуляем расскраски вершин больше Xk
     for (int j = maxadj + 1; j < numvertex; j++) { clrs[j] = -1; }
     int Jk = clrs[maxadj] + 1;
     while (!clrisfree(maxadj, clrs, Jk)) { Jk++; }
     if (Jk < maxclr) {
         clrs[maxadj] = Jk;
         //перекрашиваем смежные вершины номером больше v
-        //обнуляем расскраски вершин больше Xk
-        for (int j = maxadj + 1; j < numvertex; j++) { clrs[j] = -1; }
         //раскрашиваем
-        for (int j = maxadj + 1; j < numvertex; j++) {
+        int k;
+        for (k = maxadj + 1; k < numvertex; k++) {
             int minclr = 0;
-            while (!clrisfree(j, clrs, minclr)) { minclr++; }
+            while (!clrisfree(k, clrs, minclr)) { minclr++; }
             if (minclr == maxclr) {
-                returncolor(j, clrs, maxclr);
+                returncolor(k, clrs, maxclr);
                 break;
-            } else { clrs[j] = minclr; }
+            } else { clrs[k] = minclr; }
         }
     } else { returncolor(maxadj, clrs, maxclr); }
 }

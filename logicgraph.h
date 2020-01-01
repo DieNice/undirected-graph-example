@@ -55,6 +55,11 @@ private:
 
     bool clrisfree(unsigned int i, int *clrs, int clr);
 
+    int getmaxcolor(int *clrs);
+
+
+    bool isbadColors(int *clrs);
+
     void returncolor(unsigned int i,int *clrs, unsigned int maxclr);
 
 public:
